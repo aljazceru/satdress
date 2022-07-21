@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"strconv"
 	"time"
@@ -55,6 +54,12 @@ func makeInvoice(
 			Host:     params.Host,
 			Password: "",
 		}
+	case "commando":
+		backend = makeinvoice.CommandoParams{
+			Host:   params.Host,
+			NodeId: params.NodeId,
+			Rune:   params.Rune,
+		}
 	}
 
 	mip := makeinvoice.Params{
@@ -69,8 +74,8 @@ func makeInvoice(
 		mip.Description = fmt.Sprintf("%s's PIN for '%s@%s' lightning address: %s", params.Domain, params.Name, params.Domain, *pin)
 	} else {
 		// make the lnurlpay description_hash
-		h := sha256.Sum256([]byte(makeMetadata(params)))
-		mip.DescriptionHash = h[:]
+		mip.Description = makeMetadata(params)
+		mip.UseDescriptionHash = true
 	}
 
 	// actually generate the invoice
